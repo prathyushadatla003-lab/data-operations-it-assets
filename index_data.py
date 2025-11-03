@@ -4,9 +4,9 @@ import os
 
 # === CONFIGURATION ===
 ES_ENDPOINT = "https://my-elasticsearch-project-f8ad9e.es.us-central1.gcp.elastic.cloud:443"
-ES_API_KEY = "Rjdtdk01b0JsME1BWlJtRGNUNkc6S0tRN0hKQzRZTTVyRW9mRnNwTWZCdw=="
-CSV_FILE = "it_asset_inventory_cleaned.csv"  # e.g., "elastic_exports/my_index.csv"
-TARGET_INDEX = "it_asset_inventory_cleaned"
+ES_API_KEY = "S2JuaU9ab0JsME1BWlJtRHQwQlM6UHpzcVpCU2FFTmJtZm5FelJyR0VsQQ=="
+CSV_FILE = "C:/Users/DatlaPrathyusha/OneDrive - kyndryl/Documents/GitHub/data-operations-it-assets/it_asset_inventory_cleaned.csv"  # e.g., "elastic_exports/my_index.csv"
+TARGET_INDEX = "it_asset_inventory_cleaned2"
 
 # === CONNECT TO ELASTIC ===
 es = Elasticsearch(
@@ -30,15 +30,10 @@ if not os.path.exists(CSV_FILE):
 df = pd.read_csv(CSV_FILE)
 print(f"📄 Loaded {len(df)} records from {CSV_FILE}")
 
-# === PREPARE BULK DATA WITH transaction_id AS _id ===
-if 'hostname' not in df.columns:
-    print("❌ 'hostname' column not found in CSV.")
-    exit()
-
+# === PREPARE BULK DATA ===
 actions = [
     {
         "_index": TARGET_INDEX,
-        "_id": str(row['hostname']),  # Set document ID
         "_source": row.to_dict()
     }
     for _, row in df.iterrows()
@@ -47,6 +42,6 @@ actions = [
 # === BULK UPLOAD ===
 try:
     helpers.bulk(es, actions)
-    print(f"✅ Successfully uploaded {len(actions)} documents to index '{TARGET_INDEX}' using transaction_id as _id")
+    print(f"✅ Successfully uploaded {len(actions)} documents to index '{TARGET_INDEX}'")
 except Exception as e:
     print(f"❌ Bulk upload failed: {e}")
